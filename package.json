@@ -1,6 +1,6 @@
 {
   "name": "todoist-api-mcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "MCP server for Todoist API integration",
   "author": "Denny K",
   "type": "module",

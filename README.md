@@ -1,4 +1,6 @@
-# Todoist-API-MCP
+[![npm](https://img.shields.io/npm/v/todoist-api-mcp)](https://www.npmjs.com/package/todoist-api-mcp)
+
+# 📝 Todoist-API-MCP
 
 MCP server for Todoist API integration. Provides full access to Todoist functionality through a simple and convenient MCP protocol.
 
@@ -10,6 +12,22 @@ MCP server for Todoist API integration. Provides full access to Todoist function
 - 🚀 **Complete API**: support for all main Todoist entities (tasks, projects, sections, labels, comments)
 
 ## 🚀 Quick Start
+
+```json
+{
+  "mcpServers": {
+    "todoist": {
+      "command": "npx",
+      "args": ["todoist-api-mcp", "--mode", "stdio"],
+      "env": {
+        "TODOIST_API_TOKEN": "your_todoist_api_token"
+      }
+    }
+  }
+}
+```
+
+### Advanced usage
 
 ```bash
 # stdio mode (for single user)
