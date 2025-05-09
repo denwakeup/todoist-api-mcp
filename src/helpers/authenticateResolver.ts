@@ -6,25 +6,24 @@ export const createAuthResolver = (mcpAccessToken?: string) => {
   const authResolver: ServerOptions<TodoistMCPSession>['authenticate'] = async (
     request
   ) => {
-    const requestMcpToken = request.headers?.authorization?.replace(
-      /^Bearer\s+/,
-      ''
-    );
+    const requestMcpToken =
+      request.headers?.['X-Mcp-Token'] || request.headers?.['x-mcp-token'];
 
-    if (mcpAccessToken && requestMcpToken !== mcpAccessToken) {
+    const normalizedMcpToken = Array.isArray(requestMcpToken)
+      ? requestMcpToken[0]
+      : requestMcpToken;
+
+    if (mcpAccessToken && normalizedMcpToken !== mcpAccessToken) {
       throw new Response(null, {
         status: 401,
         statusText: 'Unauthorized',
       });
     }
 
-    const rawTodoistApiToken =
-      request.headers?.['X-Todoist-Token'] ||
-      request.headers?.['x-todoist-token'];
-
-    const todoistApiToken = Array.isArray(rawTodoistApiToken)
-      ? rawTodoistApiToken[0]
-      : rawTodoistApiToken;
+    const todoistApiToken = request.headers?.authorization?.replace(
+      /^Bearer\s+/,
+      ''
+    );
 
     if (!todoistApiToken) {
       throw new Response(null, {

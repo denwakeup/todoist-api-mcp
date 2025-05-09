@@ -11,7 +11,7 @@ MCP server for Todoist API integration. Provides full access to Todoist function
 - 🔒 **Security**: ability to restrict server access using an MCP Access token
 - 🚀 **Complete API**: support for all main Todoist entities (tasks, projects, sections, labels, comments)
 
-## 🚀 Quick Start
+## Quick Start
 
 ```json
 {
@@ -34,11 +34,11 @@ MCP server for Todoist API integration. Provides full access to Todoist function
 npx todoist-api-mcp --mode stdio --todoist-token YOUR_TODOIST_API_TOKEN
 
 # SSE mode (for multi-user access)
-# Clients send their Todoist tokens via X-Todoist-Token header
+# Clients send their Todoist tokens via Authorization: Bearer TOKEN header
 npx todoist-api-mcp --mode sse
 
 # HTTP Stream mode (for multi-user access)
-# Clients send their Todoist tokens via X-Todoist-Token header
+# Clients send their Todoist tokens via Authorization: Bearer TOKEN header
 npx todoist-api-mcp --mode httpStream
 
 # With MCP Access token restriction
@@ -52,9 +52,9 @@ npx todoist-api-mcp --mode sse --port 8080
 
 - **stdio**: local mode for working through standard input/output streams. The Todoist API token is passed through the `--todoist-token` parameter or the `TODOIST_API_TOKEN` environment variable.
 
-- **sse** (Server-Sent Events): HTTP mode with event support for multiple clients. Each client uses their own Todoist API token via the `X-Todoist-Token` header. Server access can be restricted through an MCP Access token (`--mcp-access-token`), which is verified in the `Authorization: Bearer TOKEN` header.
+- **sse** (Server-Sent Events): HTTP mode with event support for multiple clients. Each client uses their own Todoist API token via the `Authorization: Bearer TOKEN` header. Server access can be restricted through an MCP Access token (`--mcp-access-token`), which is verified in the `X-Mcp-Token` header.
 
-- **httpStream**: streaming HTTP mode for long-lived connections. Each client uses their own Todoist API token via the `X-Todoist-Token` header. Server access can be restricted through an MCP Access token (`--mcp-access-token`), which is verified in the `Authorization: Bearer TOKEN` header.
+- **httpStream**: streaming HTTP mode for long-lived connections. Each client uses their own Todoist API token via the `Authorization: Bearer TOKEN` header. Server access can be restricted through an MCP Access token (`--mcp-access-token`), which is verified in the `X-Mcp-Token` header.
 
 ## Available Tools
 

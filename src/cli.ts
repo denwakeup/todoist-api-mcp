@@ -48,7 +48,7 @@ const bootstrap = () => {
         if (options.todoistToken) {
           // eslint-disable-next-line no-console
           console.warn(
-            'sse, httpStream modes use Todoist API token from X-Todoist-Token header'
+            'sse, httpStream modes use Todoist API token from Authorization: Bearer TOKEN header'
           );
         }
       }
