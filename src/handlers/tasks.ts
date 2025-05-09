@@ -45,6 +45,7 @@ export function setupTaskHandlers(
         .string()
         .nullable()
         .optional()
+        .nullable()
         .describe('Cursor for pagination (obtained from previous request)'),
       limit: z
         .number()

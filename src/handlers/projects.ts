@@ -77,22 +77,30 @@ export function setupProjectHandlers(
       id: z
         .string()
         .describe("Unique project identifier (example: '2207306141')"),
-      name: z.string().optional().describe('New project name'),
-      color: TodoistColor.optional().describe('New project color'),
+      name: z.string().optional().nullable().describe('New project name'),
+      color: TodoistColor.optional().nullable().describe('New project color'),
       isFavorite: z
         .boolean()
         .optional()
+        .nullable()
         .describe('Add/remove from favorites (true/false)'),
       viewStyle: z
         .enum(['list', 'board'])
         .optional()
+        .nullable()
         .describe("New view style: 'list' or 'board'"),
     }),
     execute: async (args, { session }) => {
       const api = resolveApi(session);
       try {
         const { id, ...updateArgs } = args;
-        const project = await api.updateProject(id, updateArgs);
+        const project = await api.updateProject(id, {
+          ...updateArgs,
+          name: updateArgs.name ?? undefined,
+          color: updateArgs.color ?? undefined,
+          isFavorite: updateArgs.isFavorite ?? undefined,
+          viewStyle: updateArgs.viewStyle ?? undefined,
+        });
         return {
           content: [{ type: 'text', text: JSON.stringify(project) }],
         };

@@ -40,7 +40,7 @@ export function setupLabelHandlers(
         .describe(
           'Label order in the list of labels. Determines position among other labels.'
         ),
-      favorite: z
+      isFavorite: z
         .boolean()
         .optional()
         .nullable()
@@ -52,6 +52,7 @@ export function setupLabelHandlers(
         const label = await api.addLabel({
           ...args,
           color: args.color ?? undefined,
+          isFavorite: args.isFavorite ?? undefined,
         });
         return {
           content: [{ type: 'text', text: JSON.stringify(label) }],
@@ -69,19 +70,29 @@ export function setupLabelHandlers(
     description: 'Update an existing label in Todoist',
     parameters: z.object({
       id: z.string().describe('Unique label identifier for updating'),
-      name: z.string().optional().describe('New label name'),
-      color: TodoistColor.optional().describe('New label color'),
+      name: z.string().optional().nullable().describe('New label name'),
+      color: TodoistColor.optional().nullable().describe('New label color'),
       order: z
         .number()
         .optional()
+        .nullable()
         .describe('New order of the label in the list of labels'),
-      favorite: z.boolean().optional().describe('Add/remove from favorites'),
+      isFavorite: z
+        .boolean()
+        .optional()
+        .nullable()
+        .describe('Add/remove from favorites'),
     }),
     execute: async (args, { session }) => {
       const api = resolveApi(session);
       try {
         const { id, ...updateArgs } = args;
-        const label = await api.updateLabel(id, updateArgs);
+        const label = await api.updateLabel(id, {
+          ...updateArgs,
+          name: updateArgs.name ?? undefined,
+          color: updateArgs.color ?? undefined,
+          isFavorite: updateArgs.isFavorite ?? undefined,
+        });
         return {
           content: [{ type: 'text', text: JSON.stringify(label) }],
         };
