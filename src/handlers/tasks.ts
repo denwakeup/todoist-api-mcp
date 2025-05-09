@@ -1,5 +1,7 @@
 import { z } from 'zod';
 import { UserError } from 'fastmcp';
+import { Duration } from '@doist/todoist-api-typescript';
+import { RequireAllOrNone, RequireOneOrNone } from 'type-fest';
 
 import { TodoistMCP, TodoistApiResolver } from '../types';
 
@@ -159,7 +161,7 @@ export function setupTaskHandlers(
           'Duration amount (must be specified together with durationUnit)'
         ),
       durationUnit: z
-        .string()
+        .enum(['minute', 'day'])
         .optional()
         .nullable()
         .describe('Duration unit (must be specified together with duration)'),
@@ -172,7 +174,39 @@ export function setupTaskHandlers(
     execute: async (args, { session }) => {
       const api = resolveApi(session);
       try {
-        const task = await api.addTask(args);
+        const { durationUnit, dueDate, dueDatetime, duration, ...passedArgs } =
+          args;
+
+        const unitArgs = {
+          dueDate: dueDate ?? undefined,
+          dueDatetime: dueDatetime ?? undefined,
+          duration: duration ?? undefined,
+          durationUnit: durationUnit ?? undefined,
+        } as RequireOneOrNone<{
+          dueDate?: string;
+          dueDatetime?: string;
+        }> &
+          RequireAllOrNone<{
+            duration?: Duration['amount'];
+            durationUnit?: Duration['unit'];
+          }>;
+
+        const task = await api.addTask({
+          ...passedArgs,
+          ...unitArgs,
+          description: passedArgs.description ?? undefined,
+          projectId: passedArgs.projectId ?? undefined,
+          sectionId: passedArgs.sectionId ?? undefined,
+          parentId: passedArgs.parentId ?? undefined,
+          order: passedArgs.order ?? undefined,
+          labels: passedArgs.labels ?? undefined,
+          priority: passedArgs.priority ?? undefined,
+          assigneeId: passedArgs.assigneeId ?? undefined,
+          dueString: passedArgs.dueString ?? undefined,
+          dueLang: passedArgs.dueLang ?? undefined,
+          deadlineLang: passedArgs.deadlineLang ?? undefined,
+          deadlineDate: passedArgs.deadlineDate ?? undefined,
+        });
         return {
           content: [{ type: 'text', text: JSON.stringify(task) }],
         };
@@ -269,7 +303,7 @@ export function setupTaskHandlers(
           'New duration amount (must be specified together with durationUnit)'
         ),
       durationUnit: z
-        .string()
+        .enum(['minute', 'day'])
         .optional()
         .nullable()
         .describe(
@@ -280,8 +314,38 @@ export function setupTaskHandlers(
     execute: async (args, { session }) => {
       const api = resolveApi(session);
       try {
-        const { id, ...updateArgs } = args;
-        const task = await api.updateTask(id, updateArgs);
+        const {
+          id,
+          durationUnit,
+          dueDate,
+          dueDatetime,
+          duration,
+          ...passedArgs
+        } = args;
+
+        const unitArgs = {
+          dueDate: dueDate ?? undefined,
+          dueDatetime: dueDatetime ?? undefined,
+          duration: duration ?? undefined,
+          durationUnit: durationUnit ?? undefined,
+        } as RequireOneOrNone<{
+          dueDate?: string;
+          dueDatetime?: string;
+        }> &
+          RequireAllOrNone<{
+            duration?: Duration['amount'];
+            durationUnit?: Duration['unit'];
+          }>;
+
+        const task = await api.updateTask(id, {
+          ...passedArgs,
+          ...unitArgs,
+          content: passedArgs.content ?? undefined,
+          description: passedArgs.description ?? undefined,
+          labels: passedArgs.labels ?? undefined,
+          priority: passedArgs.priority ?? undefined,
+          dueString: passedArgs.dueString ?? undefined,
+        });
         return {
           content: [{ type: 'text', text: JSON.stringify(task) }],
         };

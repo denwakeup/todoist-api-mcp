@@ -52,12 +52,34 @@ export function setupCommentHandlers(
   });
 
   server.addTool({
-    name: 'createComment',
-    description: 'Create a new comment for a task or project in Todoist',
+    name: 'createTaskComment',
+    description: 'Create a new comment for a task in Todoist',
     parameters: z.object({
       content: z.string().describe('Comment text'),
-      taskId: z.string().optional().nullable().describe('Task ID'),
-      projectId: z.string().optional().nullable().describe('Project ID'),
+      taskId: z.string().describe('Task ID'),
+    }),
+    execute: async (args, { session }) => {
+      const api = resolveApi(session);
+
+      try {
+        const comment = await api.addComment(args);
+        return {
+          content: [{ type: 'text', text: JSON.stringify(comment) }],
+        };
+      } catch (error) {
+        throw new UserError(
+          error instanceof Error ? error.message : 'Unknown error'
+        );
+      }
+    },
+  });
+
+  server.addTool({
+    name: 'createProjectComment',
+    description: 'Create a new comment for a project in Todoist',
+    parameters: z.object({
+      content: z.string().describe('Comment text'),
+      projectId: z.string().describe('Project ID'),
     }),
     execute: async (args, { session }) => {
       const api = resolveApi(session);
