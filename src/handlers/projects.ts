@@ -36,15 +36,18 @@ export function setupProjectHandlers(
       parentId: z
         .string()
         .optional()
+        .nullable()
         .describe("Parent project ID (example: '2207306141')"),
-      color: TodoistColor.optional().describe('Project color'),
+      color: TodoistColor.optional().nullable().describe('Project color'),
       favorite: z
         .boolean()
         .optional()
+        .nullable()
         .describe('Add to favorites (true/false)'),
       viewStyle: z
         .enum(['list', 'board'])
         .optional()
+        .nullable()
         .describe("Project view style: 'list' or 'board'"),
     }),
     execute: async (args, { session }) => {
@@ -148,30 +151,37 @@ export function setupProjectHandlers(
     name: 'getProjectTasks',
     description: 'Get a list of tasks from a specific project',
     parameters: z.object({
-      projectId: z.string().describe("Project ID (example: '2207306141')"),
+      projectId: z
+        .string()
+        .describe("Project ID for retrieving tasks (example: '2207306141')"),
       sectionId: z
         .string()
         .optional()
+        .nullable()
         .describe("Section ID for filtering (example: '7025')"),
       label: z
         .string()
         .optional()
+        .nullable()
         .describe("Label name for filtering (example: 'important')"),
       filter: z
         .string()
         .optional()
+        .nullable()
         .describe(
           "Filter string in Todoist format (example: 'today & @important')"
         ),
       ids: z
         .array(z.string())
         .optional()
+        .nullable()
         .describe(
           "Array of task IDs to retrieve specific tasks (example: ['123', '456'])"
         ),
       parentId: z
         .string()
         .optional()
+        .nullable()
         .describe("Parent task ID to retrieve subtasks (example: '7025')"),
       cursor: z
         .string()
@@ -181,6 +191,7 @@ export function setupProjectHandlers(
       limit: z
         .number()
         .optional()
+        .nullable()
         .describe('Limit on the number of tasks (default: 30, maximum: 50)'),
     }),
     execute: async (args, { session }) => {

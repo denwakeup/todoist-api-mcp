@@ -20,24 +20,29 @@ export function setupTaskHandlers(
       projectId: z
         .string()
         .optional()
+        .nullable()
         .describe("Project ID for filtering (example: '2207306141')"),
       sectionId: z
         .string()
         .optional()
+        .nullable()
         .describe("Section ID for filtering (example: '7025')"),
       label: z
         .string()
         .optional()
+        .nullable()
         .describe("Label name for filtering (example: 'important')"),
       ids: z
         .array(z.string())
         .optional()
+        .nullable()
         .describe(
           "Array of task IDs to retrieve specific tasks (example: ['123', '456'])"
         ),
       parentId: z
         .string()
         .optional()
+        .nullable()
         .describe("Parent task ID to retrieve subtasks (example: '7025')"),
       cursor: z
         .string()
@@ -47,6 +52,7 @@ export function setupTaskHandlers(
       limit: z
         .number()
         .optional()
+        .nullable()
         .describe('Limit on the number of tasks (default: 30, maximum: 50)'),
     }),
     execute: async (args, { session }) => {
@@ -72,55 +78,70 @@ export function setupTaskHandlers(
       description: z
         .string()
         .optional()
+        .nullable()
         .describe('Detailed text description of the task'),
       projectId: z
         .string()
         .optional()
+        .nullable()
         .describe(
           "Project ID where the task is being created (example: '2207306141')"
         ),
       sectionId: z
         .string()
         .optional()
+        .nullable()
         .describe("Section ID in the project (example: '7025')"),
       parentId: z
         .string()
         .optional()
+        .nullable()
         .describe('Parent task ID (for creating a subtask)'),
-      order: z.number().optional().describe('Task order in the list (integer)'),
+      order: z
+        .number()
+        .optional()
+        .nullable()
+        .describe('Task order in the list (integer)'),
       labels: z
         .array(z.string())
         .optional()
+        .nullable()
         .describe("Array of label names (example: ['work', 'urgent'])"),
       priority: z
         .number()
         .min(1)
         .max(4)
         .optional()
+        .nullable()
         .describe('Task priority: 4 (highest) - 1 (lowest)'),
       dueString: z
         .string()
         .optional()
+        .nullable()
         .describe(
           "Due date in text format (example: 'tomorrow at 3pm', 'every Monday')"
         ),
       dueDate: z
         .string()
         .optional()
+        .nullable()
         .describe("Due date in YYYY-MM-DD format (example: '2024-03-20')"),
       dueDatetime: z
         .string()
         .optional()
+        .nullable()
         .describe(
           "Due date in ISO 8601 format (example: '2024-03-20T15:00:00Z')"
         ),
       dueLang: z
         .string()
         .optional()
+        .nullable()
         .describe("Language for processing dueString (example: 'ru', 'en')"),
       assigneeId: z
         .string()
         .optional()
+        .nullable()
         .describe('ID of the user to whom the task is assigned'),
     }),
     execute: async (args, { session }) => {
@@ -143,52 +164,65 @@ export function setupTaskHandlers(
     description: 'Update an existing task in Todoist',
     parameters: z.object({
       id: z.string().describe("Unique task identifier (example: '7025')"),
-      content: z.string().optional().describe('New task text'),
-      description: z.string().optional().describe('New task description'),
+      content: z.string().optional().nullable().describe('New task text'),
+      description: z
+        .string()
+        .optional()
+        .nullable()
+        .describe('New task description'),
       projectId: z
         .string()
         .optional()
+        .nullable()
         .describe("New project ID (example: '2207306141')"),
       sectionId: z
         .string()
         .optional()
+        .nullable()
         .describe("New section ID (example: '7025')"),
-      parentId: z.string().optional().describe('New parent task ID'),
+      parentId: z.string().optional().nullable().describe('New parent task ID'),
       order: z
         .number()
         .optional()
+        .nullable()
         .describe('New task order in the list (integer)'),
       labels: z
         .array(z.string())
         .optional()
+        .nullable()
         .describe("New array of label names (example: ['work', 'urgent'])"),
       priority: z
         .number()
         .min(1)
         .max(4)
         .optional()
+        .nullable()
         .describe('New task priority: 4 (highest) - 1 (lowest)'),
       dueString: z
         .string()
         .optional()
+        .nullable()
         .describe("New due date in text format (example: 'tomorrow at 3pm')"),
       dueDate: z
         .string()
         .optional()
+        .nullable()
         .describe("New due date in YYYY-MM-DD format (example: '2024-03-20')"),
       dueDatetime: z
         .string()
         .optional()
+        .nullable()
         .describe(
           "New due date in ISO 8601 format (example: '2024-03-20T15:00:00Z')"
         ),
       dueLang: z
         .string()
         .optional()
+        .nullable()
         .describe(
           "New language for processing dueString (example: 'ru', 'en')"
         ),
-      assigneeId: z.string().optional().describe('New assignee ID'),
+      assigneeId: z.string().optional().nullable().describe('New assignee ID'),
     }),
     execute: async (args, { session }) => {
       const api = resolveApi(session);
@@ -309,16 +343,19 @@ export function setupTaskHandlers(
       projectId: z
         .string()
         .optional()
+        .nullable()
         .describe(
           "Project ID for additional filtering (example: '2207306141')"
         ),
       sectionId: z
         .string()
         .optional()
+        .nullable()
         .describe("Section ID for additional filtering (example: '7025')"),
       label: z
         .string()
         .optional()
+        .nullable()
         .describe("Label name for additional filtering (example: 'important')"),
       cursor: z
         .string()
@@ -328,6 +365,7 @@ export function setupTaskHandlers(
       limit: z
         .number()
         .optional()
+        .nullable()
         .describe('Limit on the number of tasks (default: 30, maximum: 50)'),
     }),
     execute: async (args, { session }) => {
