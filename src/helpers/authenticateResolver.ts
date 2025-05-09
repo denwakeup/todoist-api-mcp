@@ -16,7 +16,7 @@ export const createAuthResolver = (mcpAccessToken?: string) => {
     if (mcpAccessToken && normalizedMcpToken !== mcpAccessToken) {
       throw new Response(null, {
         status: 401,
-        statusText: 'Unauthorized',
+        statusText: 'Unauthorized - Invalid MCP token',
       });
     }
 
