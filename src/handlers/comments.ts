@@ -13,8 +13,16 @@ export function setupCommentHandlers(
     description:
       'Get a list of comments in Todoist with the ability to filter by project or task',
     parameters: z.object({
-      projectId: z.string().optional().describe('Project ID for filtering'),
-      taskId: z.string().optional().describe('Task ID for filtering'),
+      projectId: z
+        .string()
+        .optional()
+        .nullable()
+        .describe('Project ID for filtering'),
+      taskId: z
+        .string()
+        .optional()
+        .nullable()
+        .describe('Task ID for filtering'),
     }),
     execute: async (args, { session }) => {
       const api = resolveApi(session);
@@ -37,8 +45,8 @@ export function setupCommentHandlers(
     description: 'Create a new comment for a task or project in Todoist',
     parameters: z.object({
       content: z.string().describe('Comment text'),
-      taskId: z.string().optional().describe('Task ID'),
-      projectId: z.string().optional().describe('Project ID'),
+      taskId: z.string().optional().nullable().describe('Task ID'),
+      projectId: z.string().optional().nullable().describe('Project ID'),
     }),
     execute: async (args, { session }) => {
       const api = resolveApi(session);

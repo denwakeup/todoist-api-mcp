@@ -51,6 +51,7 @@ export function setupSectionHandlers(
       order: z
         .number()
         .optional()
+        .nullable()
         .describe('Section order in the project (starting from 1)'),
     }),
     execute: async (args, { session }) => {
@@ -78,6 +79,7 @@ export function setupSectionHandlers(
       order: z
         .number()
         .optional()
+        .nullable()
         .describe('New section order (starting from 1)'),
     }),
     execute: async (args, { session }) => {
@@ -150,26 +152,31 @@ export function setupSectionHandlers(
       projectId: z
         .string()
         .optional()
+        .nullable()
         .describe("Project ID for filtering (example: '2207306141')"),
       label: z
         .string()
         .optional()
+        .nullable()
         .describe("Label name for filtering (example: 'important')"),
       filter: z
         .string()
         .optional()
+        .nullable()
         .describe(
           "Filter string in Todoist format (example: 'today & @important')"
         ),
       ids: z
         .array(z.string())
         .optional()
+        .nullable()
         .describe(
           "Array of task IDs to retrieve specific tasks (example: ['123', '456'])"
         ),
       parentId: z
         .string()
         .optional()
+        .nullable()
         .describe("Parent task ID to retrieve subtasks (example: '7025')"),
       cursor: z
         .string()
@@ -179,6 +186,7 @@ export function setupSectionHandlers(
       limit: z
         .number()
         .optional()
+        .nullable()
         .describe('Limit on the number of tasks (default: 30, maximum: 50)'),
     }),
     execute: async (args, { session }) => {

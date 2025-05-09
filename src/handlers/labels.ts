@@ -34,14 +34,19 @@ export function setupLabelHandlers(
     description: 'Create a new label in Todoist',
     parameters: z.object({
       name: z.string().describe('Label name (required field)'),
-      color: TodoistColor.optional().describe('Label color'),
+      color: TodoistColor.optional().nullable().describe('Label color'),
       order: z
         .number()
         .optional()
+        .nullable()
         .describe(
           'Label order in the list of labels. Determines position among other labels.'
         ),
-      favorite: z.boolean().optional().describe('Add label to favorites'),
+      favorite: z
+        .boolean()
+        .optional()
+        .nullable()
+        .describe('Add label to favorites'),
     }),
     execute: async (args, { session }) => {
       const api = resolveApi(session);
@@ -134,23 +139,41 @@ export function setupLabelHandlers(
     description: 'Get a list of tasks with a specific label',
     parameters: z.object({
       label: z.string().describe('Label for filtering tasks'),
-      projectId: z.string().optional().describe('Project ID for filtering'),
-      sectionId: z.string().optional().describe('Section ID for filtering'),
-      filter: z.string().optional().describe('Filter string in Todoist format'),
+      projectId: z
+        .string()
+        .optional()
+        .nullable()
+        .describe('Project ID for filtering'),
+      sectionId: z
+        .string()
+        .optional()
+        .nullable()
+        .describe('Section ID for filtering'),
+      filter: z
+        .string()
+        .optional()
+        .nullable()
+        .describe('Filter string in Todoist format'),
       ids: z
         .array(z.string())
         .optional()
+        .nullable()
         .describe('Array of task IDs to retrieve specific tasks'),
       parentId: z
         .string()
         .optional()
+        .nullable()
         .describe('Parent task ID to retrieve subtasks'),
       cursor: z
         .string()
         .nullable()
         .optional()
         .describe('Cursor for pagination'),
-      limit: z.number().optional().describe('Limit on the number of tasks'),
+      limit: z
+        .number()
+        .optional()
+        .nullable()
+        .describe('Limit on the number of tasks'),
     }),
     execute: async (args, { session }) => {
       const api = resolveApi(session);
