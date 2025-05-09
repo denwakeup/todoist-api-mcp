@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { UserError } from 'fastmcp';
-import { Duration } from '@doist/todoist-api-typescript';
+import { Duration, MoveTaskArgs } from '@doist/todoist-api-typescript';
 import { RequireAllOrNone, RequireOneOrNone } from 'type-fest';
 
 import { TodoistMCP, TodoistApiResolver } from '../types';
@@ -229,22 +229,6 @@ export function setupTaskHandlers(
         .optional()
         .nullable()
         .describe('New task description'),
-      projectId: z
-        .string()
-        .optional()
-        .nullable()
-        .describe("New project ID (example: '2207306141')"),
-      sectionId: z
-        .string()
-        .optional()
-        .nullable()
-        .describe("New section ID (example: '7025')"),
-      parentId: z.string().optional().nullable().describe('New parent task ID'),
-      order: z
-        .number()
-        .optional()
-        .nullable()
-        .describe('New task order in the list (integer)'),
       labels: z
         .array(z.string())
         .optional()
@@ -488,6 +472,42 @@ Use operators: | (OR), & (AND), ! (NOT), () for grouping`
           lang: args.lang ?? undefined,
           limit: args.limit ?? undefined,
         });
+        return {
+          content: [{ type: 'text', text: JSON.stringify(tasks) }],
+        };
+      } catch (error) {
+        throw new UserError(
+          error instanceof Error ? error.message : 'Unknown error'
+        );
+      }
+    },
+  });
+
+  server.addTool({
+    name: 'moveTasks',
+    description:
+      'Moves tasks to another project, section, or parent task. Exactly one of projectId, sectionId, or parentId must be provided.',
+    parameters: z.object({
+      ids: z.array(z.string()).describe('Array of task IDs to move'),
+      projectId: z.string().optional().nullable().describe('Target project ID'),
+      sectionId: z.string().optional().nullable().describe('Target section ID'),
+      parentId: z
+        .string()
+        .optional()
+        .nullable()
+        .describe('Target parent task ID'),
+    }),
+    execute: async (args, { session }) => {
+      const api = resolveApi(session);
+      try {
+        const { ids, ...moveArgs } = args;
+
+        const tasks = await api.moveTasks(ids, {
+          ...moveArgs,
+          parentId: moveArgs.parentId ?? undefined,
+          projectId: moveArgs.projectId ?? undefined,
+          sectionId: moveArgs.sectionId ?? undefined,
+        } as MoveTaskArgs);
         return {
           content: [{ type: 'text', text: JSON.stringify(tasks) }],
         };
