@@ -1,5 +1,4 @@
 import { UserError } from 'fastmcp';
-import { AddCommentArgs, GetCommentsArgs } from '@doist/todoist-api-typescript';
 import { z } from 'zod';
 
 import { TodoistApiResolver, TodoistMCP } from '../types';
@@ -9,26 +8,38 @@ export function setupCommentHandlers(
   resolveApi: TodoistApiResolver
 ): void {
   server.addTool({
-    name: 'getComments',
-    description:
-      'Get a list of comments in Todoist with the ability to filter by project or task',
+    name: 'getTaskComments',
+    description: 'Get a list of comments for a specific task in Todoist',
     parameters: z.object({
-      projectId: z
-        .string()
-        .optional()
-        .nullable()
-        .describe('Project ID for filtering'),
-      taskId: z
-        .string()
-        .optional()
-        .nullable()
-        .describe('Task ID for filtering'),
+      taskId: z.string().describe('Task ID for filtering'),
     }),
     execute: async (args, { session }) => {
       const api = resolveApi(session);
 
       try {
-        const comments = await api.getComments(args as GetCommentsArgs);
+        const comments = await api.getComments(args);
+        return {
+          content: [{ type: 'text', text: JSON.stringify(comments) }],
+        };
+      } catch (error) {
+        throw new UserError(
+          error instanceof Error ? error.message : 'Unknown error'
+        );
+      }
+    },
+  });
+
+  server.addTool({
+    name: 'getProjectComments',
+    description: 'Get a list of comments for a specific project in Todoist',
+    parameters: z.object({
+      projectId: z.string().describe('Project ID for filtering'),
+    }),
+    execute: async (args, { session }) => {
+      const api = resolveApi(session);
+
+      try {
+        const comments = await api.getComments(args);
         return {
           content: [{ type: 'text', text: JSON.stringify(comments) }],
         };
@@ -52,7 +63,7 @@ export function setupCommentHandlers(
       const api = resolveApi(session);
 
       try {
-        const comment = await api.addComment(args as AddCommentArgs);
+        const comment = await api.addComment(args);
         return {
           content: [{ type: 'text', text: JSON.stringify(comment) }],
         };

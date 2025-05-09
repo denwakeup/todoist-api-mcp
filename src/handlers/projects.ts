@@ -1,5 +1,4 @@
 import { UserError } from 'fastmcp';
-import { AddProjectArgs, GetTasksArgs } from '@doist/todoist-api-typescript';
 import { z } from 'zod';
 
 import { TodoistMCP, TodoistApiResolver } from '../types';
@@ -39,7 +38,7 @@ export function setupProjectHandlers(
         .nullable()
         .describe("Parent project ID (example: '2207306141')"),
       color: TodoistColor.optional().nullable().describe('Project color'),
-      favorite: z
+      isFavorite: z
         .boolean()
         .optional()
         .nullable()
@@ -53,7 +52,13 @@ export function setupProjectHandlers(
     execute: async (args, { session }) => {
       const api = resolveApi(session);
       try {
-        const project = await api.addProject(args as AddProjectArgs);
+        const project = await api.addProject({
+          ...args,
+          parentId: args.parentId ?? undefined,
+          color: args.color ?? undefined,
+          isFavorite: args.isFavorite ?? undefined,
+          viewStyle: args.viewStyle ?? undefined,
+        });
         return {
           content: [{ type: 'text', text: JSON.stringify(project) }],
         };
@@ -74,7 +79,7 @@ export function setupProjectHandlers(
         .describe("Unique project identifier (example: '2207306141')"),
       name: z.string().optional().describe('New project name'),
       color: TodoistColor.optional().describe('New project color'),
-      favorite: z
+      isFavorite: z
         .boolean()
         .optional()
         .describe('Add/remove from favorites (true/false)'),
@@ -138,68 +143,6 @@ export function setupProjectHandlers(
         const project = await api.getProject(args.id);
         return {
           content: [{ type: 'text', text: JSON.stringify(project) }],
-        };
-      } catch (error) {
-        throw new UserError(
-          error instanceof Error ? error.message : 'Unknown error'
-        );
-      }
-    },
-  });
-
-  server.addTool({
-    name: 'getProjectTasks',
-    description: 'Get a list of tasks from a specific project',
-    parameters: z.object({
-      projectId: z
-        .string()
-        .describe("Project ID for retrieving tasks (example: '2207306141')"),
-      sectionId: z
-        .string()
-        .optional()
-        .nullable()
-        .describe("Section ID for filtering (example: '7025')"),
-      label: z
-        .string()
-        .optional()
-        .nullable()
-        .describe("Label name for filtering (example: 'important')"),
-      filter: z
-        .string()
-        .optional()
-        .nullable()
-        .describe(
-          "Filter string in Todoist format (example: 'today & @important')"
-        ),
-      ids: z
-        .array(z.string())
-        .optional()
-        .nullable()
-        .describe(
-          "Array of task IDs to retrieve specific tasks (example: ['123', '456'])"
-        ),
-      parentId: z
-        .string()
-        .optional()
-        .nullable()
-        .describe("Parent task ID to retrieve subtasks (example: '7025')"),
-      cursor: z
-        .string()
-        .nullable()
-        .optional()
-        .describe('Cursor for pagination (obtained from previous request)'),
-      limit: z
-        .number()
-        .optional()
-        .nullable()
-        .describe('Limit on the number of tasks (default: 30, maximum: 50)'),
-    }),
-    execute: async (args, { session }) => {
-      const api = resolveApi(session);
-      try {
-        const tasks = await api.getTasks(args as GetTasksArgs);
-        return {
-          content: [{ type: 'text', text: JSON.stringify(tasks) }],
         };
       } catch (error) {
         throw new UserError(

@@ -1,8 +1,3 @@
-import {
-  AddTaskArgs,
-  GetTasksArgs,
-  UpdateTaskArgs,
-} from '@doist/todoist-api-typescript';
 import { z } from 'zod';
 import { UserError } from 'fastmcp';
 
@@ -58,7 +53,15 @@ export function setupTaskHandlers(
     execute: async (args, { session }) => {
       const api = resolveApi(session);
       try {
-        const tasks = await api.getTasks(args as GetTasksArgs);
+        const tasks = await api.getTasks({
+          ...args,
+          projectId: args.projectId ?? undefined,
+          sectionId: args.sectionId ?? undefined,
+          label: args.label ?? undefined,
+          ids: args.ids ?? undefined,
+          parentId: args.parentId ?? undefined,
+          limit: args.limit ?? undefined,
+        });
         return {
           content: [{ type: 'text', text: JSON.stringify(tasks) }],
         };
@@ -138,6 +141,28 @@ export function setupTaskHandlers(
         .optional()
         .nullable()
         .describe("Language for processing dueString (example: 'ru', 'en')"),
+      deadlineLang: z
+        .string()
+        .optional()
+        .nullable()
+        .describe("Language for processing deadlineDate (example: 'ru', 'en')"),
+      deadlineDate: z
+        .string()
+        .optional()
+        .nullable()
+        .describe("Deadline date in YYYY-MM-DD format (example: '2024-03-20')"),
+      duration: z
+        .number()
+        .optional()
+        .nullable()
+        .describe(
+          'Duration amount (must be specified together with durationUnit)'
+        ),
+      durationUnit: z
+        .string()
+        .optional()
+        .nullable()
+        .describe('Duration unit (must be specified together with duration)'),
       assigneeId: z
         .string()
         .optional()
@@ -147,7 +172,7 @@ export function setupTaskHandlers(
     execute: async (args, { session }) => {
       const api = resolveApi(session);
       try {
-        const task = await api.addTask(args as AddTaskArgs);
+        const task = await api.addTask(args);
         return {
           content: [{ type: 'text', text: JSON.stringify(task) }],
         };
@@ -222,13 +247,41 @@ export function setupTaskHandlers(
         .describe(
           "New language for processing dueString (example: 'ru', 'en')"
         ),
+      deadlineLang: z
+        .string()
+        .optional()
+        .nullable()
+        .describe(
+          "New language for processing deadlineDate (example: 'ru', 'en')"
+        ),
+      deadlineDate: z
+        .string()
+        .optional()
+        .nullable()
+        .describe(
+          "New deadline date in YYYY-MM-DD format (example: '2024-03-20')"
+        ),
+      duration: z
+        .number()
+        .optional()
+        .nullable()
+        .describe(
+          'New duration amount (must be specified together with durationUnit)'
+        ),
+      durationUnit: z
+        .string()
+        .optional()
+        .nullable()
+        .describe(
+          'New duration unit (must be specified together with duration)'
+        ),
       assigneeId: z.string().optional().nullable().describe('New assignee ID'),
     }),
     execute: async (args, { session }) => {
       const api = resolveApi(session);
       try {
         const { id, ...updateArgs } = args;
-        const task = await api.updateTask(id, updateArgs as UpdateTaskArgs);
+        const task = await api.updateTask(id, updateArgs);
         return {
           content: [{ type: 'text', text: JSON.stringify(task) }],
         };
@@ -335,28 +388,23 @@ export function setupTaskHandlers(
     description:
       'Getting a list of tasks in Todoist by query filter. Supports complex filtering conditions.',
     parameters: z.object({
-      filter: z
-        .string()
-        .describe(
-          "Filter string in Todoist format (example: 'today & @important', 'overdue | today')"
-        ),
-      projectId: z
-        .string()
-        .optional()
-        .nullable()
-        .describe(
-          "Project ID for additional filtering (example: '2207306141')"
-        ),
-      sectionId: z
-        .string()
-        .optional()
-        .nullable()
-        .describe("Section ID for additional filtering (example: '7025')"),
-      label: z
+      query: z.string().describe(
+        `Filter string in Todoist format. Examples:
+- 'today & @important' - tasks due today with important label
+- 'overdue | today' - overdue or today's tasks
+- '#Work & @email' - tasks in Work project with email label
+- '(@work | @office) & !subtask' - tasks with work or office label, excluding subtasks
+- 'date: tomorrow & !#Work' - tasks due tomorrow, excluding Work project
+- '7 days & @waiting' - tasks due in next 7 days with waiting label
+- 'assigned to: me & #Work' - tasks assigned to you in Work project
+- 'created before: -30 days' - tasks created more than 30 days ago
+Use operators: | (OR), & (AND), ! (NOT), () for grouping`
+      ),
+      lang: z
         .string()
         .optional()
         .nullable()
-        .describe("Label name for additional filtering (example: 'important')"),
+        .describe("Language for processing query (example: 'ru', 'en')"),
       cursor: z
         .string()
         .nullable()
@@ -371,7 +419,11 @@ export function setupTaskHandlers(
     execute: async (args, { session }) => {
       const api = resolveApi(session);
       try {
-        const tasks = await api.getTasks(args as GetTasksArgs);
+        const tasks = await api.getTasksByFilter({
+          ...args,
+          lang: args.lang ?? undefined,
+          limit: args.limit ?? undefined,
+        });
         return {
           content: [{ type: 'text', text: JSON.stringify(tasks) }],
         };

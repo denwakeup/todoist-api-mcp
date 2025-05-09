@@ -1,9 +1,4 @@
 import { UserError } from 'fastmcp';
-import {
-  AddSectionArgs,
-  GetSectionsArgs,
-  GetTasksArgs,
-} from '@doist/todoist-api-typescript';
 import { z } from 'zod';
 
 import { TodoistMCP, TodoistApiResolver } from '../types';
@@ -25,7 +20,7 @@ export function setupSectionHandlers(
     execute: async (args, { session }) => {
       const api = resolveApi(session);
       try {
-        const sections = await api.getSections(args as GetSectionsArgs);
+        const sections = await api.getSections(args);
         return {
           content: [{ type: 'text', text: JSON.stringify(sections) }],
         };
@@ -57,7 +52,7 @@ export function setupSectionHandlers(
     execute: async (args, { session }) => {
       const api = resolveApi(session);
       try {
-        const section = await api.addSection(args as AddSectionArgs);
+        const section = await api.addSection(args);
         return {
           content: [{ type: 'text', text: JSON.stringify(section) }],
         };
@@ -134,67 +129,6 @@ export function setupSectionHandlers(
         const section = await api.getSection(args.id);
         return {
           content: [{ type: 'text', text: JSON.stringify(section) }],
-        };
-      } catch (error) {
-        throw new UserError(
-          error instanceof Error ? error.message : 'Unknown error'
-        );
-      }
-    },
-  });
-
-  server.addTool({
-    name: 'getSectionTasks',
-    description:
-      'Get tasks from a specific section with additional filtering options',
-    parameters: z.object({
-      sectionId: z.string().describe("Section ID (example: '7025')"),
-      projectId: z
-        .string()
-        .optional()
-        .nullable()
-        .describe("Project ID for filtering (example: '2207306141')"),
-      label: z
-        .string()
-        .optional()
-        .nullable()
-        .describe("Label name for filtering (example: 'important')"),
-      filter: z
-        .string()
-        .optional()
-        .nullable()
-        .describe(
-          "Filter string in Todoist format (example: 'today & @important')"
-        ),
-      ids: z
-        .array(z.string())
-        .optional()
-        .nullable()
-        .describe(
-          "Array of task IDs to retrieve specific tasks (example: ['123', '456'])"
-        ),
-      parentId: z
-        .string()
-        .optional()
-        .nullable()
-        .describe("Parent task ID to retrieve subtasks (example: '7025')"),
-      cursor: z
-        .string()
-        .nullable()
-        .optional()
-        .describe('Cursor for pagination (obtained from previous request)'),
-      limit: z
-        .number()
-        .optional()
-        .nullable()
-        .describe('Limit on the number of tasks (default: 30, maximum: 50)'),
-    }),
-    execute: async (args, { session }) => {
-      const api = resolveApi(session);
-      try {
-        const tasks = await api.getTasks(args as GetTasksArgs);
-        return {
-          content: [{ type: 'text', text: JSON.stringify(tasks) }],
         };
       } catch (error) {
         throw new UserError(
